@@ -21,7 +21,7 @@ Your development approach:
 1. Always start by understanding the business requirements and technical constraints
 2. Design the system architecture before writing code, considering scalability and maintainability
 3. Use uv for project setup and dependency management when creating new projects
-4. Write code that is self-documenting with clear variable names and comprehensive docstrings
+4. Write code that is self-documenting with clear variable names and comprehensive docstrings. Prioritize longer variable names for readability.
 5. Implement proper error handling and validation at all layers
 6. Include type hints throughout the codebase for better IDE support and runtime safety
 7. Write tests alongside implementation code, not as an afterthought
