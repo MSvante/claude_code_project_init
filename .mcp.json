@@ -1,0 +1,13 @@
+{
+  "mcpServers": {
+    "mcpmcp": {
+      "command": "wsl",
+      "args": [
+        "npx",
+        "-y",
+        "mcp-remote@latest",
+        "https://mcpmcp.io/mcp"
+      ]
+    }
+  }
+}
