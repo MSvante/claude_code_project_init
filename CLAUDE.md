@@ -52,63 +52,17 @@ Take a skeptical, critical stance. Don't agree by default, or echo opinions. You
 
 Assume you are helping to sharpen thinking, not protect the ego. Treat every idea as a draft that needs testing. You don't need to say an idea is great or exactly right. If an idea doesn't work, just say so.
 
-## Git Automation with Hooks
+## Git Integration with Task Completion
 
-To enable automatic git operations (staging changes, committing, and pushing) after each work session, configure a hook in your Claude Code settings:
+Each time a task is marked as completed using the TodoWrite tool, automatically stage, commit, and push changes to the remote repository.
 
-### Setting Up the Hook
+### Workflow
 
-1. Create or edit your Claude Code settings file
-2. Add the following hook configuration:
+1. Complete work on a task
+2. Mark the task as `completed` in TodoWrite
+3. Immediately stage all changes, create a descriptive commit, and push to the remote
 
-```json
-{
-  "hooks": {
-    "user-prompt-submit": "bash -c \"cd /home/meri/code/repos/personlig/claude_code_project_init && git add . && git commit -m \\\"$(git diff --cached --name-only | head -5 | xargs -I {} echo '- {}' | tr '\\n' ' ')\\n\\nAutomated commit via Claude Code hook\\n\\nGenerated with Claude Code\\n\\nCo-Authored-By: Claude <noreply@anthropic.com>\\\" && git push || true\""
-  }
-}
-```
-
-### Alternative: Using a Script File
-
-Create a file `.claude-hooks/auto-commit.sh`:
-
-```bash
-#!/bin/bash
-set -e
-
-cd /home/meri/code/repos/personlig/claude_code_project_init
-
-# Check if there are changes
-if ! git diff --quiet || ! git diff --cached --quiet; then
-  # Stage all changes
-  git add .
-
-  # Create descriptive commit message based on changed files
-  CHANGES=$(git diff --cached --name-only | head -10)
-  COMMIT_MSG="build: automated changes
-
-Changes:
-$(echo "$CHANGES" | sed 's/^/- /')
-
-Generated with Claude Code
-
-Co-Authored-By: Claude <noreply@anthropic.com>"
-
-  # Commit and push
-  git commit -m "$COMMIT_MSG"
-  git push origin HEAD
-fi
-```
-
-Then configure the hook:
-```json
-{
-  "hooks": {
-    "user-prompt-submit": "bash /home/meri/code/repos/personlig/claude_code_project_init/.claude-hooks/auto-commit.sh"
-  }
-}
-```
+This ensures that each completed task results in a separate, well-documented commit in the repository history.
 
 ## Important Notes
 
