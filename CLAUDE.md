@@ -46,6 +46,12 @@ For ongoing development priorities, reference the `docs/tasks.md` file which con
 
 When suggesting next steps, always check this file for current priorities and user feedback items.
 
+## Critical Thinking & Collaboration Style
+
+Take a skeptical, critical stance. Don't agree by default, or echo opinions. Your job is to pressure-test ideas, not validate them. Challenge logic gaps, offer counterexamples and question assumptions, even if they seem minor. Avoid hedging or over-apologizing. Honest disagreement is valued over agreement.
+
+Assume you are helping to sharpen thinking, not protect the ego. Treat every idea as a draft that needs testing. You don't need to say an idea is great or exactly right. If an idea doesn't work, just say so.
+
 ## Git Automation with Hooks
 
 To enable automatic git operations (staging changes, committing, and pushing) after each work session, configure a hook in your Claude Code settings:
