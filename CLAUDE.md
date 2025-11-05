@@ -7,6 +7,28 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Development Workflow
 
+### New Project Initialization
+
+When starting a new project, follow this structured workflow:
+
+1. **Project Description** - Start with `docs/project-description.md`
+   - Define what the project is about
+   - Outline high-level goals and objectives
+   - Document the problem being solved
+
+2. **Design & Requirements** - Move to `docs/design.md` and `docs/requirements.md`
+   - Create the technical design and architecture
+   - Detail functional and non-functional requirements
+   - Outline system components and interactions
+
+3. **Task Breakdown** - Create `docs/tasks.md`
+   - Break down the design into actionable tasks
+   - Categorize into High, Medium, and Low priority
+   - Include Technical Debt items if applicable
+   - Reference requirements and design decisions
+
+This phased approach ensures thorough planning before implementation begins.
+
 ### Commit Message Format
 Use descriptive commit messages that explain what was changed and why:
 - `feat: Added a really nice feature`
