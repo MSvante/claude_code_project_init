@@ -297,3 +297,12 @@ When selecting which project to pursue, consider:
 - **User Value**: Would real users benefit from this product?
 - **Maintenance**: Is the project sustainable long-term, or is it a learning exercise?
 - **Community**: Is there an existing community or ecosystem to learn from?
+
+
+### 6. Azure Devops MCP Server
+
+**Objective**: Implement the MCP server found at https://github.com/microsoft/azure-devops-mcp into this repository, so that we can easily connect to Azure Devops. 
+
+**Description**:
+
+**Key Features**:
