@@ -11,6 +11,10 @@
 *.sln.docstates
 *.env
 
+# Claude Code MCP configuration with sensitive credentials
+.mcp.json
+.mcp.local.json
+
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
 
