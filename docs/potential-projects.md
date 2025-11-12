@@ -1,5 +1,16 @@
 # Potential Projects
 
+## Project Summary
+
+| Project # | Description | Done? |
+|-----------|-------------|-------|
+| 1 | Databricks Platform - Infrastructure as Code | ❌ |
+| 2 | Smart Banking Analytics Dashboard - Personal Finance Intelligence | ❌ |
+| 3 | Personal Portfolio Website | ❌ |
+| 4 | AULA Data Dashboard - Danish School Platform Integration | ❌ |
+| 5 | Intelligent Email Assistant - Smart Reply Automation | ❌ |
+| 6 | Azure DevOps MCP Server Integration | ❌ |
+
 ## Project Inspiration
 
 For discovering new project ideas and staying updated with innovative concepts, visit **[ideabrowser.com](https://ideabrowser.com)**. This resource provides a curated collection of startup ideas, side projects, and development concepts that can serve as inspiration for building real-world applications.
