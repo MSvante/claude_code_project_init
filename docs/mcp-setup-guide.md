@@ -26,13 +26,13 @@ AZURE_DEVOPS_PAT="your-pat-token-here"
 
 ### 3. Activate Configuration
 
-Source the environment file to activate it:
+Use the MCP organization switcher script to activate the configuration:
 
 ```bash
-source environments/.env.your_org_name && code .
+./scripts/mcp-switch-org.sh your_org_name
 ```
 
-The `.mcp.json` file will automatically use the environment variables from the sourced file.
+The script will source the environment file and open Claude Code with the correct environment variables loaded.
 
 ---
 
@@ -114,12 +114,12 @@ Before configuring, you'll need:
    - `myorg`: Your Azure DevOps organization name (e.g., `msvante`)
    - `your-pat-token-here`: Your generated PAT token
 
-3. Source the environment file to activate it:
+3. Use the MCP organization switcher script to activate the configuration:
    ```bash
-   source environments/.env.myorg && code .
+   ./scripts/mcp-switch-org.sh myorg
    ```
 
-   The `.mcp.json` file will automatically use the environment variables from the sourced file.
+   The script will source the environment file and open Claude Code with the correct environment variables loaded.
 
 ### Step 3: Verify Installation
 
@@ -191,14 +191,17 @@ nano environments/.env.msvante
 nano environments/.env.other-org
 ```
 
-Then switch between organizations by sourcing the appropriate environment file:
+Then switch between organizations using the MCP switcher script:
 
 ```bash
 # Switch to msvante organization
-source environments/.env.msvante && code .
+./scripts/mcp-switch-org.sh msvante
 
 # Switch to other-org organization
-source environments/.env.other-org && code .
+./scripts/mcp-switch-org.sh other-org
+
+# List available organizations
+./scripts/mcp-switch-org.sh list
 ```
 
 See [Multi-Organization Guide](./mcp-multi-organization.md) for detailed instructions and examples.
@@ -258,12 +261,13 @@ See [Multi-Organization Guide](./mcp-multi-organization.md) for detailed instruc
 **Problem**: Changes to `.mcp.json` or environment variables aren't reflected
 
 **Solutions**:
-1. Verify you've sourced the environment file: `source environments/.env.myorg && code .`
-2. Reload/restart Claude Code
-3. Verify the JSON syntax in `.mcp.json` is valid (no trailing commas, proper quotes)
-4. Check environment file syntax: `cat environments/.env.myorg`
-5. Check file permissions: `ls -la .mcp.json environments/.env.myorg`
-6. Ensure files are in the correct locations (project root)
+1. Use the MCP switcher script to properly load the environment: `./scripts/mcp-switch-org.sh myorg`
+2. Or manually source the environment file: `source environments/.env.myorg && code .`
+3. Reload/restart Claude Code
+4. Verify the JSON syntax in `.mcp.json` is valid (no trailing commas, proper quotes)
+5. Check environment file syntax: `cat environments/.env.myorg`
+6. Check file permissions: `ls -la .mcp.json environments/.env.myorg`
+7. Ensure files are in the correct locations (project root)
 
 ---
 
