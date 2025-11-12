@@ -12,14 +12,18 @@ The recommended approach for managing multiple organizations is using **environm
 
 ### Setup
 
-1. Create environment files for each organization:
+1. Create environment files for each organization in the `environments/` directory:
    ```bash
-   cat > .env.msvante << EOF
-   AZURE_DEVOPS_ORG=msvante
-   AZURE_DEVOPS_PAT=your_msvante_pat_here
-   EOF
+   # Copy the example template
+   cp environments/example.env.org_name environments/.env.msvante
 
-   cat > .env.other-org << EOF
+   # Edit with your credentials
+   nano environments/.env.msvante
+   # Add: AZURE_DEVOPS_ORG=msvante
+   #      AZURE_DEVOPS_PAT=your_msvante_pat_here
+
+   # Or create new ones directly
+   cat > environments/.env.other-org << EOF
    AZURE_DEVOPS_ORG=other-org
    AZURE_DEVOPS_PAT=your_other_org_pat_here
    EOF
@@ -59,20 +63,25 @@ source .env.msvante && code .
 
 ### Step 1: Prepare Environment Files
 
-Create an `.env` file for each organization you work with. These files define your organization name and Personal Access Token.
+Create environment files in the `environments/` directory for each organization you work with. Each file defines your organization name and Personal Access Token.
 
-**File naming convention:** `.env.<org-name>`
+**File naming convention:** `environments/.env.<org-name>`
 
-**Example - .env.msvante:**
+**Example - environments/.env.msvante:**
 ```bash
 AZURE_DEVOPS_ORG=msvante
 AZURE_DEVOPS_PAT=your_pat_for_msvante_here
 ```
 
-**Example - .env.another-org:**
+**Example - environments/.env.another-org:**
 ```bash
 AZURE_DEVOPS_ORG=another-org
 AZURE_DEVOPS_PAT=your_pat_for_another_org_here
+```
+
+**Tip:** Copy from the template:
+```bash
+cp environments/example.env.org_name environments/.env.msvante
 ```
 
 ### Step 2: Verify .mcp.json Configuration
@@ -95,15 +104,24 @@ Your `.mcp.json` should reference environment variables (not hardcoded values):
 
 **Note:** If you created `.mcp.json` from `.mcp.json.example`, you may need to replace hardcoded values with `${AZURE_DEVOPS_ORG}` and `${AZURE_DEVOPS_PAT}`.
 
-### Step 3: Update .gitignore
+### Step 3: Verify .gitignore Configuration
 
-The `.gitignore` already excludes `.env*` files, so your PAT files won't be committed. Verify:
+The `.gitignore` is configured to:
+- Ignore all `.env.*` files in the `environments/` directory (sensitive credentials)
+- Explicitly include `environments/example.env.org_name` (template for team)
+
+Verify:
 
 ```bash
-grep "^*.env" .gitignore
+grep -A 2 "Azure DevOps environment" .gitignore
 ```
 
-Should show: `*.env`
+Should show:
+```
+# Azure DevOps environment files (ignore all .env files in environments dir except example)
+environments/.env.*
+!environments/example.env.org_name
+```
 
 ### Step 4: Use the Helper Script
 
@@ -200,29 +218,41 @@ source .env.org-b && code .
 
 ### Step 1: Create Environment File
 
-Create a new `.env` file for the organization:
+Copy the example template to create a new environment file:
 
 ```bash
-cat > .env.new-org << EOF
+cp environments/example.env.org_name environments/.env.new-org
+```
+
+Or create directly:
+
+```bash
+cat > environments/.env.new-org << EOF
 AZURE_DEVOPS_ORG=new-org
 AZURE_DEVOPS_PAT=your_pat_for_new_org
 EOF
 ```
 
-### Step 2: Set Proper Permissions
+### Step 2: Edit with Your Credentials
 
-Ensure the file has restricted permissions:
+Edit the file with your organization's PAT:
 
 ```bash
-chmod 600 .env.new-org
+nano environments/.env.new-org
 ```
 
 ### Step 3: Use It
 
-Source the environment and start Claude Code:
+Use the helper script to switch to the new organization:
 
 ```bash
-source .env.new-org && code .
+./scripts/mcp-switch-org.sh new-org
+```
+
+Or manually source it:
+
+```bash
+source environments/.env.new-org && code .
 ```
 
 ---
@@ -350,10 +380,11 @@ When a PAT expires:
 
 | File | Purpose |
 |------|---------|
-| `.env.org-name` | Environment variables for each organization |
+| `environments/example.env.org_name` | Template file (committed to git, shows structure) |
+| `environments/.env.org-name` | Actual environment configs (gitignored, contains PAT) |
 | `.mcp.json` | MCP configuration (uses environment variables) |
 | `scripts/mcp-switch-org.sh` | Helper script for switching organizations |
-| `.gitignore` | Excludes `.env*` and `.mcp.json` files |
+| `.gitignore` | Excludes sensitive files, allows example template |
 
 ---
 
