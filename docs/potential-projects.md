@@ -299,10 +299,100 @@ When selecting which project to pursue, consider:
 - **Community**: Is there an existing community or ecosystem to learn from?
 
 
-### 6. Azure Devops MCP Server
+### 6. Azure DevOps MCP Server Integration
 
-**Objective**: Implement the MCP server found at https://github.com/microsoft/azure-devops-mcp into this repository, so that we can easily connect to Azure Devops. 
+**Objective**: Install and configure the Azure DevOps MCP server from Microsoft's official repository into this Claude Code environment, enabling seamless integration with Azure DevOps to read work item descriptions and create pull requests directly from Claude Code.
 
 **Description**:
+Integrate the official Microsoft Azure DevOps MCP (Model Context Protocol) server into Claude Code to bridge the gap between AI-assisted development and Azure DevOps project management. This integration allows Claude Code to connect to your Azure DevOps organization, access project information, read work item details and descriptions, and programmatically create pull requests without manually navigating the Azure DevOps UI. This dramatically improves the developer workflow by keeping you in the IDE while maintaining full visibility and control over your DevOps tasks.
 
 **Key Features**:
+
+- **Work Item Integration**: Read and access work item details, descriptions, acceptance criteria, and status from Azure DevOps
+- **Task Context**: Automatically fetch task descriptions and requirements for current development work
+- **Pull Request Creation**: Create pull requests directly from Claude Code with proper linking to work items
+- **Project Access**: Browse and access projects within your Azure DevOps organization
+- **Repository Information**: Access repo details, branches, and commit history
+- **Build Artifacts**: Retrieve build information and pipeline status
+- **Team Collaboration**: View team members, permissions, and project settings
+- **Work Item History**: Track changes and history of work items for context
+
+**Technical Stack**:
+
+- **MCP Server**: Microsoft's official Azure DevOps MCP server from [https://github.com/microsoft/azure-devops-mcp](https://github.com/microsoft/azure-devops-mcp)
+- **Authentication**: Azure DevOps Personal Access Tokens (PAT) for secure API access
+- **Integration**: Claude Code native MCP server configuration
+- **API**: Azure DevOps REST API via the MCP server
+- **Storage**: Local configuration files for organization and project settings
+
+**Installation & Configuration Steps**:
+
+1. Clone or install the Azure DevOps MCP server from Microsoft's GitHub repository
+2. Configure Azure DevOps authentication using Personal Access Tokens
+3. Register the MCP server in Claude Code's configuration file (`.claude/mcp.json` or equivalent)
+4. Set environment variables for Azure DevOps organization URL and credentials
+5. Test connectivity to verify successful integration
+6. Configure default project and repository settings for your workflow
+
+**Learning Opportunities**:
+
+- MCP (Model Context Protocol) architecture and integration patterns
+- Azure DevOps API and REST endpoints
+- OAuth/PAT authentication for enterprise systems
+- Claude Code extension and MCP server configuration
+- DevOps workflow automation
+- Secure credential management in development environments
+- Integration testing between local IDE and cloud services
+
+**Workflow Benefits**:
+
+- **Single Context Window**: Stay in the IDE without switching to web UI
+- **Automated PR Creation**: Generate PRs with proper linking to Azure DevOps work items
+- **Task-Aware Development**: Claude Code understands current sprint tasks and requirements
+- **Seamless Context**: Share work item details directly with Claude for better code suggestions
+- **Commit Integration**: Link commits and PRs back to original work items
+- **Team Synchronization**: Keep team informed of progress without manual updates
+
+**Implementation Phases**:
+
+1. **Phase 1**: Install and configure Azure DevOps MCP server, establish authentication
+2. **Phase 2**: Test work item reading capabilities and project access
+3. **Phase 3**: Implement pull request creation functionality
+4. **Phase 4**: Create helper scripts/workflows for common tasks (e.g., "Create PR for current task")
+5. **Phase 5**: Advanced integrations (build monitoring, release pipelines, custom queries)
+
+**Configuration File Structure** (example):
+
+```json
+{
+  "mcpServers": {
+    "azure-devops": {
+      "command": "node",
+      "args": ["/path/to/azure-devops-mcp/dist/index.js"],
+      "env": {
+        "AZURE_DEVOPS_ORG_URL": "https://dev.azure.com/yourorg",
+        "AZURE_DEVOPS_PAT": "${AZURE_DEVOPS_PAT}",
+        "AZURE_DEVOPS_PROJECT": "YourProject"
+      }
+    }
+  }
+}
+```
+
+**Key Advantages**:
+
+- **No Custom Development**: Leverages Microsoft's official, maintained implementation
+- **Enterprise Support**: Built and maintained by Microsoft for production use
+- **Standards-Based**: Uses official Azure DevOps APIs
+- **Secure**: PAT-based authentication with proper credential handling
+- **Scalable**: Works with multiple organizations and projects
+- **Community-Backed**: Official Microsoft repository with community support
+
+**Resources**:
+
+- [Azure DevOps MCP Repository](https://github.com/microsoft/azure-devops-mcp)
+- [Azure DevOps REST API Documentation](https://docs.microsoft.com/en-us/rest/api/azure/devops)
+- [Claude Code MCP Configuration Guide](https://docs.claude.com/en/docs/claude-code)
+- [Personal Access Token Setup](https://docs.microsoft.com/en-us/azure/devops/organizations/accounts/use-personal-access-tokens-to-authenticate)
+
+---
