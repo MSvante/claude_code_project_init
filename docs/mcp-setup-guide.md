@@ -4,21 +4,35 @@ This guide provides step-by-step instructions for setting up the Model Context P
 
 ## Quick Start
 
-### 1. Copy the Example Configuration
+### 1. Create Environment Configuration
+
+Create an environment file in the `environments/` directory using the example template:
 
 ```bash
-cp .mcp.json.example .mcp.json
+cp environments/example.env.org_name environments/.env.your_org_name
 ```
 
-### 2. Update Configuration Values
+### 2. Update Environment Variables
 
-Edit `.mcp.json` and replace the placeholder values:
-- `YOUR_ORG_NAME`: Your Azure DevOps organization name
-- `YOUR_PERSONAL_ACCESS_TOKEN_HERE`: Your Azure DevOps Personal Access Token
+Edit the newly created file (e.g., `environments/.env.your_org_name`) and replace:
+- `INSERT_YOUR_ORG_NAME_HERE`: Your Azure DevOps organization name
+- `INSERT_YOUR_PAT_HERE`: Your Azure DevOps Personal Access Token
 
-### 3. Verify Configuration
+Example:
+```env
+AZURE_DEVOPS_ORG="mycompany"
+AZURE_DEVOPS_PAT="your-pat-token-here"
+```
 
-Once configured, Claude Code will automatically use the MCP servers defined in `.mcp.json` when you interact with it.
+### 3. Activate Configuration
+
+Source the environment file to activate it:
+
+```bash
+source environments/.env.your_org_name && code .
+```
+
+The `.mcp.json` file will automatically use the environment variables from the sourced file.
 
 ---
 
@@ -26,28 +40,34 @@ Once configured, Claude Code will automatically use the MCP servers defined in `
 
 ### Step 1: Understand the Configuration Structure
 
-The `.mcp.json` file uses this structure:
+The MCP configuration is split into two parts:
 
+**`.mcp.json`** - Server configuration (contains template variables):
 ```json
 {
   "mcpServers": {
-    "server-name": {
-      "command": "executable-or-interpreter",
-      "args": ["path-to-server", "configuration-args"],
+    "azure-devops": {
+      "command": "node",
+      "args": [".mcp-servers/azure-devops-mcp/dist/index.js", "${AZURE_DEVOPS_ORG}", "--authentication", "env"],
       "env": {
-        "ENVIRONMENT_VARIABLE": "value"
+        "AZURE_DEVOPS_PAT": "${AZURE_DEVOPS_PAT}"
       }
     }
   }
 }
 ```
 
+**`environments/.env.org_name`** - Environment variables (contains actual values):
+```env
+AZURE_DEVOPS_ORG="your-org-name"
+AZURE_DEVOPS_PAT="your-pat-token"
+```
+
 **Key Components:**
-- `mcpServers`: Root object containing all MCP server configurations
-- `server-name`: Unique identifier for the server (e.g., `azure-devops`)
-- `command`: The executable or interpreter to run (e.g., `node` for Node.js servers)
-- `args`: Command-line arguments passed to the server
-- `env`: Environment variables available to the server process
+- `${AZURE_DEVOPS_ORG}`: Template variable replaced by environment variable
+- `${AZURE_DEVOPS_PAT}`: Template variable replaced by environment variable
+- `environments/` directory: Contains organization-specific environment files
+- Environment variables are loaded by sourcing the appropriate `.env` file
 
 ### Step 2: Configure Azure DevOps Integration
 
@@ -77,48 +97,56 @@ Before configuring, you'll need:
 6. Click **Create**
 7. **Important**: Copy the token immediately - you won't be able to see it again!
 
-#### 2.3 Update .mcp.json
+#### 2.3 Create Environment File
 
-1. Copy the example configuration:
+1. Copy the example environment template:
    ```bash
-   cp .mcp.json.example .mcp.json
+   cp environments/example.env.org_name environments/.env.myorg
    ```
 
-2. Edit `.mcp.json` and update these values:
-   ```json
-   {
-     "mcpServers": {
-       "azure-devops": {
-         "command": "node",
-         "args": [".mcp-servers/azure-devops-mcp/dist/index.js", "YOUR_ORG_NAME", "--authentication", "env"],
-         "env": {
-           "AZURE_DEVOPS_PAT": "YOUR_PERSONAL_ACCESS_TOKEN_HERE"
-         }
-       }
-     }
-   }
+2. Edit the environment file and update these values:
+   ```env
+   AZURE_DEVOPS_ORG="myorg"
+   AZURE_DEVOPS_PAT="your-pat-token-here"
    ```
 
    Replace:
-   - `YOUR_ORG_NAME`: Your Azure DevOps organization name (e.g., `msvante`)
-   - `YOUR_PERSONAL_ACCESS_TOKEN_HERE`: Your generated PAT token
+   - `myorg`: Your Azure DevOps organization name (e.g., `msvante`)
+   - `your-pat-token-here`: Your generated PAT token
+
+3. Source the environment file to activate it:
+   ```bash
+   source environments/.env.myorg && code .
+   ```
+
+   The `.mcp.json` file will automatically use the environment variables from the sourced file.
 
 ### Step 3: Verify Installation
 
 #### 3.1 Check File Structure
 
 Ensure the following files exist:
-- `.mcp.json` - Your configuration file (created from `.mcp.json.example`)
+- `.mcp.json` - Server configuration file
+- `environments/.env.myorg` - Your organization environment file
 - `.mcp-servers/azure-devops-mcp/dist/index.js` - The MCP server binary
 
 Verify with:
 ```bash
-ls -la .mcp.json .mcp-servers/azure-devops-mcp/dist/index.js
+ls -la .mcp.json environments/.env.myorg .mcp-servers/azure-devops-mcp/dist/index.js
 ```
 
-#### 3.2 Test the Connection
+#### 3.2 Verify Environment is Sourced
 
-You can test the MCP server connection by asking Claude Code:
+Make sure you've sourced the environment file in your current shell session:
+
+```bash
+source environments/.env.myorg
+echo $AZURE_DEVOPS_ORG  # Should display your org name
+```
+
+#### 3.3 Test the Connection
+
+You can test the MCP server connection by asking Claude Code (after sourcing the environment file):
 - "Show me the projects in my Azure DevOps organization"
 - "List the work items in the RandomHyggeMakker project"
 - "What are the recent builds?"
@@ -129,12 +157,12 @@ If the connection is working, Claude Code will retrieve and display the informat
 
 #### 4.1 Protect Your Configuration
 
-The `.mcp.json` file contains your Personal Access Token, which is sensitive. Protect it by:
+The environment files in `environments/` contain your Personal Access Token, which is sensitive. Protect them by:
 
-1. **Never commit to version control**: The `.gitignore` file already excludes `.mcp.json`
-2. **Use appropriate file permissions**: Keep the file readable only by your user
+1. **Never commit to version control**: The `.gitignore` file already excludes `environments/.env*`
+2. **Use appropriate file permissions**: Keep the files readable only by your user
    ```bash
-   chmod 600 .mcp.json
+   chmod 600 environments/.env.myorg
    ```
 3. **Store securely**: If needed, store the PAT in your system's credential manager and reference it via environment variables
 
@@ -151,32 +179,25 @@ The `.mcp.json` file contains your Personal Access Token, which is sensitive. Pr
 
 For detailed information on working with multiple Azure DevOps organizations, see the [Multi-Organization Guide](./mcp-multi-organization.md).
 
-The recommended approach is using **environment variables**. Create `.env` files in the `environments/` directory for each organization:
+The recommended approach uses environment files in the `environments/` directory for each organization:
 
 ```bash
-# Copy the example template
+# Copy the example template for each organization
 cp environments/example.env.org_name environments/.env.msvante
+cp environments/example.env.org_name environments/.env.other-org
 
 # Edit with your credentials
 nano environments/.env.msvante
-
-# Create additional organizations
-cat > environments/.env.other-org << EOF
-AZURE_DEVOPS_ORG=other-org
-AZURE_DEVOPS_PAT=your-pat-here
-EOF
+nano environments/.env.other-org
 ```
 
-Then switch between organizations using the helper script:
+Then switch between organizations by sourcing the appropriate environment file:
 
 ```bash
-# Switch to an organization
-./scripts/mcp-switch-org.sh msvante
+# Switch to msvante organization
+source environments/.env.msvante && code .
 
-# List available organizations
-./scripts/mcp-switch-org.sh list
-
-# Or manually source the environment
+# Switch to other-org organization
 source environments/.env.other-org && code .
 ```
 
@@ -186,15 +207,26 @@ See [Multi-Organization Guide](./mcp-multi-organization.md) for detailed instruc
 
 ## Troubleshooting
 
+### Environment Variables Not Loading
+
+**Problem**: "AZURE_DEVOPS_ORG is not set" or authentication fails
+
+**Solutions**:
+1. Verify you've sourced the environment file: `echo $AZURE_DEVOPS_ORG`
+2. If empty, source the file again: `source environments/.env.myorg`
+3. Check the file exists and has correct values: `cat environments/.env.myorg`
+4. Ensure file permissions are correct: `ls -la environments/.env.myorg`
+
 ### Authentication Errors
 
 **Problem**: "Authentication failed" or "Invalid credentials"
 
 **Solutions**:
-1. Verify the PAT is correct (no extra spaces)
-2. Check the PAT hasn't expired
-3. Ensure the PAT has the required scopes
-4. Create a new PAT if needed
+1. Verify the environment is sourced: `echo $AZURE_DEVOPS_PAT` should not be empty
+2. Verify the PAT in your environment file is correct (no extra spaces)
+3. Check the PAT hasn't expired in Azure DevOps
+4. Ensure the PAT has the required scopes
+5. Create a new PAT if needed
 
 ### Server Connection Issues
 
@@ -203,7 +235,8 @@ See [Multi-Organization Guide](./mcp-multi-organization.md) for detailed instruc
 **Solutions**:
 1. Verify Node.js is installed: `node --version`
 2. Check the MCP server path is correct: `ls .mcp-servers/azure-devops-mcp/dist/index.js`
-3. Rebuild the server if needed:
+3. Verify the environment is sourced: `echo $AZURE_DEVOPS_ORG` should display your org name
+4. Rebuild the server if needed:
    ```bash
    cd .mcp-servers/azure-devops-mcp
    npm install
@@ -222,13 +255,15 @@ See [Multi-Organization Guide](./mcp-multi-organization.md) for detailed instruc
 
 ### Configuration Not Being Applied
 
-**Problem**: Changes to `.mcp.json` aren't reflected
+**Problem**: Changes to `.mcp.json` or environment variables aren't reflected
 
 **Solutions**:
-1. Reload/restart Claude Code
-2. Verify the JSON syntax is valid (no trailing commas, proper quotes)
-3. Check file permissions: `ls -la .mcp.json`
-4. Ensure the file is in the correct location (project root)
+1. Verify you've sourced the environment file: `source environments/.env.myorg && code .`
+2. Reload/restart Claude Code
+3. Verify the JSON syntax in `.mcp.json` is valid (no trailing commas, proper quotes)
+4. Check environment file syntax: `cat environments/.env.myorg`
+5. Check file permissions: `ls -la .mcp.json environments/.env.myorg`
+6. Ensure files are in the correct locations (project root)
 
 ---
 
@@ -236,8 +271,10 @@ See [Multi-Organization Guide](./mcp-multi-organization.md) for detailed instruc
 
 | File/Directory | Purpose |
 |---|---|
-| `.mcp.json` | Your active MCP configuration (created from example) |
-| `.mcp.json.example` | Template showing required configuration format |
+| `.mcp.json` | MCP server configuration (contains template variables) |
+| `environments/` | Directory containing organization-specific environment files |
+| `environments/example.env.org_name` | Template for creating new organization environment files |
+| `environments/.env.myorg` | Your organization environment file (created from template) |
 | `.mcp-servers/` | Directory containing installed MCP servers |
 | `.mcp-servers/azure-devops-mcp/` | Azure DevOps MCP server installation |
 | `docs/azure-devops-mcp-setup.md` | Detailed Azure DevOps integration documentation |
