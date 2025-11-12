@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "azure-devops": {
+      "command": "node",
+      "args": [".mcp-servers/azure-devops-mcp/dist/index.js", "YOUR_ORG_NAME", "--authentication", "env"],
+      "env": {
+        "AZURE_DEVOPS_PAT": "YOUR_PERSONAL_ACCESS_TOKEN_HERE"
+      }
+    }
+  }
+}

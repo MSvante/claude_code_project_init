@@ -14,6 +14,15 @@ The Azure DevOps MCP server enables Claude Code to interact with your Azure DevO
 
 ## Configuration
 
+### Quick Setup
+
+For step-by-step setup instructions, see [MCP Setup Guide](./mcp-setup-guide.md).
+
+**Quick Start:**
+1. Copy `.mcp.json.example` to `.mcp.json`
+2. Update your organization name and Personal Access Token
+3. Claude Code automatically loads the configuration
+
 ### Installed Components
 
 1. **MCP Server Location**: `.mcp-servers/azure-devops-mcp/`
@@ -23,8 +32,41 @@ The Azure DevOps MCP server enables Claude Code to interact with your Azure DevO
 2. **Configuration File**: `.mcp.json`
    - Defines the MCP server connection and authentication
    - Located at project root
+   - **Excluded from version control** (see `.gitignore`)
+
+3. **Configuration Template**: `.mcp.json.example`
+   - Template showing required configuration format
+   - Safe to commit to version control
+   - Copy this file to create your `.mcp.json`
 
 ### Configuration Details
+
+#### Using the Example Configuration
+
+A template configuration is provided in `.mcp.json.example`:
+
+```json
+{
+  "mcpServers": {
+    "azure-devops": {
+      "command": "node",
+      "args": [".mcp-servers/azure-devops-mcp/dist/index.js", "YOUR_ORG_NAME", "--authentication", "env"],
+      "env": {
+        "AZURE_DEVOPS_PAT": "YOUR_PERSONAL_ACCESS_TOKEN_HERE"
+      }
+    }
+  }
+}
+```
+
+To set up:
+1. Copy the example file: `cp .mcp.json.example .mcp.json`
+2. Edit `.mcp.json` and replace placeholder values
+3. Claude Code automatically loads the configuration
+
+#### Complete Configuration Reference
+
+Once configured with your values, your `.mcp.json` will look like:
 
 ```json
 {

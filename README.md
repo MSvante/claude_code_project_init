@@ -71,6 +71,19 @@ Development roadmap with prioritized tasks organized by:
 - **Low Priority**: Nice-to-have features
 - **Technical Debt**: Code quality improvements
 
+### MCP Configuration Setup
+
+This project includes Azure DevOps MCP server integration for seamless work item and pull request management from Claude Code.
+
+**Quick Start:**
+1. Copy `.mcp.json.example` to `.mcp.json`
+2. Update with your Azure DevOps organization and Personal Access Token
+3. Claude Code automatically uses the MCP server
+
+**Documentation:**
+- [MCP Setup Guide](./docs/mcp-setup-guide.md) - Complete setup instructions
+- [Azure DevOps MCP Setup](./docs/azure-devops-mcp-setup.md) - Azure DevOps specific configuration
+
 ## Commit Message Format
 
 Use descriptive commit messages that explain what was changed and why:
