@@ -15,6 +15,10 @@
 .mcp.json
 .mcp.local.json
 
+# Azure DevOps environment files (ignore all .env files in environments dir except example)
+environments/.env.*
+!environments/example.env.org_name
+
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
 

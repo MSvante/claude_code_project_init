@@ -37,8 +37,8 @@ print_warning() {
 # Function to list available environments
 list_envs() {
     print_status "Available environments:"
-    if ls "$PROJECT_ROOT"/.env.* 1> /dev/null 2>&1; then
-        ls "$PROJECT_ROOT"/.env.* | xargs -n1 basename | sed 's/^\.env\./  - /' | sort
+    if ls "$PROJECT_ROOT"/environments/.env.* 1> /dev/null 2>&1; then
+        ls "$PROJECT_ROOT"/environments/.env.* | xargs -n1 basename | sed 's/^\.env\./  - /' | sort
     else
         print_warning "No .env files found"
         echo ""
@@ -80,7 +80,7 @@ switch_org() {
     esac
 
     # Check if environment file exists
-    local env_file="$PROJECT_ROOT/.env.$org_name"
+    local env_file="$PROJECT_ROOT/environments/.env.$org_name"
     if [ ! -f "$env_file" ]; then
         print_error "Environment file not found: .env.$org_name"
         echo ""
