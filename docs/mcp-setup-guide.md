@@ -137,11 +137,17 @@ ls -la .mcp.json environments/.env.myorg .mcp-servers/azure-devops-mcp/dist/inde
 
 #### 3.2 Verify Environment is Sourced
 
-Make sure you've sourced the environment file in your current shell session:
+Make sure you've sourced the environment file in your current shell session. If you used the script, it will be sourced automatically. To verify:
+
+```bash
+echo $AZURE_DEVOPS_ORG  # Should display your org name
+echo $AZURE_DEVOPS_PAT  # Should display your PAT (though it won't be visible)
+```
+
+Or manually source the environment file:
 
 ```bash
 source environments/.env.myorg
-echo $AZURE_DEVOPS_ORG  # Should display your org name
 ```
 
 #### 3.3 Test the Connection
