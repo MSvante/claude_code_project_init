@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# MCP Organization Switcher
-# This script helps quickly switch between different Azure DevOps organizations
+# Azure DevOps Organization Switcher
+# Environment-based approach for switching between organizations
 # Usage: ./scripts/mcp-switch-org.sh [org-name]
 # Example: ./scripts/mcp-switch-org.sh msvante
 
@@ -16,12 +16,6 @@ GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m' # No Color
-
-# Configuration files
-MCP_CONFIG="$PROJECT_ROOT/.mcp.json"
-MCP_BACKUP="$PROJECT_ROOT/.mcp.json.backup"
-MCP_MULTI_ORG="$PROJECT_ROOT/.mcp.json.multi-org.example"
-MCP_SINGLE_ORG="$PROJECT_ROOT/.mcp.json.example"
 
 # Function to print colored output
 print_status() {
@@ -40,127 +34,86 @@ print_warning() {
     echo -e "${YELLOW}[!]${NC} $1"
 }
 
-# Function to show current organization
-show_current_org() {
-    if [ -f "$MCP_CONFIG" ]; then
-        local org=$(grep -o '"azure-devops[^"]*"' "$MCP_CONFIG" | head -1 | tr -d '"')
-        if [ -z "$org" ]; then
-            print_warning "No active organization found in .mcp.json"
-        else
-            print_status "Current primary organization: $org"
-        fi
+# Function to list available environments
+list_envs() {
+    print_status "Available environments:"
+    if ls "$PROJECT_ROOT"/.env.* 1> /dev/null 2>&1; then
+        ls "$PROJECT_ROOT"/.env.* | xargs -n1 basename | sed 's/^\.env\./  - /' | sort
     else
-        print_warning ".mcp.json not found"
+        print_warning "No .env files found"
+        echo ""
+        echo "Create environment files with:"
+        echo "  cat > .env.org-name << EOF"
+        echo "  AZURE_DEVOPS_ORG=org-name"
+        echo "  AZURE_DEVOPS_PAT=your-pat-here"
+        echo "  EOF"
     fi
 }
 
-# Function to list all available servers
-list_servers() {
-    if [ -f "$MCP_MULTI_ORG" ]; then
-        print_status "Available organizations (from .mcp.json.multi-org.example):"
-        grep -o '"azure-devops-[^"]*"' "$MCP_MULTI_ORG" | tr -d '"' | sed 's/^/  - /'
-    else
-        print_warning "No multi-org configuration found"
-    fi
-}
-
-# Function to create backup
-backup_config() {
-    if [ -f "$MCP_CONFIG" ]; then
-        cp "$MCP_CONFIG" "$MCP_BACKUP"
-        print_status "Backed up current .mcp.json to .mcp.json.backup"
-    fi
-}
-
-# Function to switch to organization
+# Function to switch organization
 switch_org() {
     local org_name="$1"
 
     if [ -z "$org_name" ]; then
-        print_error "Organization name required"
-        echo "Usage: $0 [org-name] [--dry-run]"
+        list_envs
+        exit 0
+    fi
+
+    # Validate organization name format
+    if [[ "$org_name" =~ ^- ]]; then
+        print_error "Invalid organization name: $org_name"
+        echo ""
+        echo "Usage: $0 [organization]"
         echo ""
         echo "Examples:"
-        echo "  $0 msvante"
-        echo "  $0 another-org"
-        echo "  $0 list                  (show current org)"
-        echo "  $0 show-all              (show all available orgs)"
-        echo "  $0 restore               (restore from backup)"
+        echo "  $0 msvante           (switch to msvante)"
+        echo "  $0 other-org         (switch to other-org)"
+        echo "  $0 list              (list available environments)"
         exit 1
     fi
 
     case "$org_name" in
-        list|current)
-            show_current_org
-            exit 0
-            ;;
-        show-all|list-all)
-            list_servers
-            exit 0
-            ;;
-        restore)
-            if [ -f "$MCP_BACKUP" ]; then
-                cp "$MCP_BACKUP" "$MCP_CONFIG"
-                print_success "Restored .mcp.json from backup"
-                show_current_org
-            else
-                print_error "No backup found"
-                exit 1
-            fi
+        list|--list|-l)
+            list_envs
             exit 0
             ;;
     esac
 
-    # Check if organization configuration exists in multi-org file
-    if ! grep -q "\"azure-devops-$org_name\"" "$MCP_MULTI_ORG" 2>/dev/null; then
-        print_error "Organization '$org_name' not found in .mcp.json.multi-org.example"
+    # Check if environment file exists
+    local env_file="$PROJECT_ROOT/.env.$org_name"
+    if [ ! -f "$env_file" ]; then
+        print_error "Environment file not found: .env.$org_name"
         echo ""
-        print_status "Available organizations:"
-        list_servers
+        echo "Available environments:"
+        list_envs
+        echo ""
+        echo "To create a new environment:"
+        echo "  cat > .env.$org_name << EOF"
+        echo "  AZURE_DEVOPS_ORG=$org_name"
+        echo "  AZURE_DEVOPS_PAT=your-pat-here"
+        echo "  EOF"
         exit 1
     fi
 
-    # Extract the organization's configuration
-    local start_line=$(grep -n "\"azure-devops-$org_name\"" "$MCP_MULTI_ORG" | cut -d: -f1)
-    if [ -z "$start_line" ]; then
-        print_error "Could not extract configuration for '$org_name'"
+    # Source the environment
+    print_status "Sourcing environment: .env.$org_name"
+    source "$env_file"
+
+    # Verify required variables
+    if [ -z "$AZURE_DEVOPS_ORG" ] || [ -z "$AZURE_DEVOPS_PAT" ]; then
+        print_error "Environment file is missing required variables"
+        echo "Required variables: AZURE_DEVOPS_ORG, AZURE_DEVOPS_PAT"
         exit 1
     fi
 
-    # Backup current config
-    backup_config
-
-    # Create new config with single organization
-    # This is a simplified approach - in practice, you might want to keep all orgs loaded
-    cat > "$MCP_CONFIG" << EOJSON
-{
-  "mcpServers": {
-    "azure-devops": {
-      "command": "node",
-      "args": [".mcp-servers/azure-devops-mcp/dist/index.js", "$org_name", "--authentication", "env"],
-      "env": {
-        "AZURE_DEVOPS_PAT": "ENTER_YOUR_PAT_FOR_$org_name"
-      }
-    }
-  }
-}
-EOJSON
-
-    print_success "Switched to organization: $org_name"
-    print_warning "Remember to update the AZURE_DEVOPS_PAT in .mcp.json with your PAT for '$org_name'"
+    print_success "Switched to organization: $AZURE_DEVOPS_ORG"
     echo ""
-    print_status "Next steps:"
-    echo "  1. Edit .mcp.json and replace ENTER_YOUR_PAT_FOR_$org_name with your actual PAT"
-    echo "  2. Restart Claude Code to load the new configuration"
-    echo "  3. Test with: 'List my ADO projects'"
+    print_status "Starting Claude Code..."
     echo ""
-    print_status "To restore previous organization:"
-    echo "  $0 restore"
+
+    # Open Claude Code with the environment loaded
+    code .
 }
 
 # Main script
-if [ $# -eq 0 ]; then
-    show_current_org
-else
-    switch_org "$@"
-fi
+switch_org "$@"

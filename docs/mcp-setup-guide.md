@@ -147,45 +147,37 @@ The `.mcp.json` file contains your Personal Access Token, which is sensitive. Pr
    - Find the token in the list
    - Click **Revoke** or **Delete**
 
-### Step 5: Multiple Organizations
+### Step 5: Working with Multiple Organizations
 
 For detailed information on working with multiple Azure DevOps organizations, see the [Multi-Organization Guide](./mcp-multi-organization.md).
 
-**Quick Reference:**
+The recommended approach is using **environment variables**. Create `.env` files for each organization:
 
-If you need to configure multiple organizations, you have three approaches:
+```bash
+# Create .env file for each organization
+cat > .env.msvante << EOF
+AZURE_DEVOPS_ORG=msvante
+AZURE_DEVOPS_PAT=your-pat-here
+EOF
 
-1. **Single Organization with Switching** - Use the helper script to switch between orgs
-   ```bash
-   ./scripts/mcp-switch-org.sh another-org
-   ```
+cat > .env.other-org << EOF
+AZURE_DEVOPS_ORG=other-org
+AZURE_DEVOPS_PAT=your-pat-here
+EOF
+```
 
-2. **Multiple Servers** - Load all organizations simultaneously:
-   ```json
-   {
-     "mcpServers": {
-       "azure-devops-org1": {
-         "command": "node",
-         "args": [".mcp-servers/azure-devops-mcp/dist/index.js", "org1", "--authentication", "env"],
-         "env": {
-           "AZURE_DEVOPS_PAT": "ORG1_PAT_TOKEN"
-         }
-       },
-       "azure-devops-org2": {
-         "command": "node",
-         "args": [".mcp-servers/azure-devops-mcp/dist/index.js", "org2", "--authentication", "env"],
-         "env": {
-           "AZURE_DEVOPS_PAT": "ORG2_PAT_TOKEN"
-         }
-       }
-     }
-   }
-   ```
+Then switch between organizations using the helper script:
 
-3. **Environment-Based** - Switch using environment variables (recommended)
-   ```bash
-   source .env.org1 && code .
-   ```
+```bash
+# Switch to an organization
+./scripts/mcp-switch-org.sh msvante
+
+# List available organizations
+./scripts/mcp-switch-org.sh list
+
+# Or manually source the environment
+source .env.other-org && code .
+```
 
 See [Multi-Organization Guide](./mcp-multi-organization.md) for detailed instructions and examples.
 

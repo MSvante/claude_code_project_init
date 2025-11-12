@@ -1,147 +1,31 @@
 # Managing Multiple Azure DevOps Organizations
 
-This guide explains how to work with multiple Azure DevOps organizations in Claude Code using the MCP configuration.
+This guide explains how to work with multiple Azure DevOps organizations in Claude Code using environment variables.
 
 ## Overview
 
-There are three main approaches to managing multiple organizations:
-
-1. **Single Organization (Simple)** - Work with one organization at a time
-2. **Multiple Servers (Advanced)** - Load all organizations simultaneously
-3. **Environment-Based (Recommended)** - Switch organizations using environment variables
-
-Choose the approach that best fits your workflow.
+The recommended approach for managing multiple organizations is using **environment variables**. This approach is clean, flexible, and keeps your configuration code separate from sensitive credentials.
 
 ---
 
-## Approach 1: Single Organization (Simple)
-
-This is the simplest approach and works best if you primarily work with one organization but occasionally need to switch.
+## Quick Start
 
 ### Setup
 
-1. Use the single organization template:
+1. Create environment files for each organization:
    ```bash
-   cp .mcp.json.example .mcp.json
-   ```
-
-2. Update with your primary organization details
-
-### Switching Organizations
-
-Use the provided helper script:
-
-```bash
-# Show current organization
-./scripts/mcp-switch-org.sh
-
-# Switch to a different organization
-./scripts/mcp-switch-org.sh another-org
-
-# Show all available organizations
-./scripts/mcp-switch-org.sh show-all
-
-# Restore previous organization
-./scripts/mcp-switch-org.sh restore
-```
-
-### How It Works
-
-The script:
-1. Backs up your current `.mcp.json`
-2. Creates a new `.mcp.json` for the target organization
-3. Reminds you to update the PAT for the new organization
-4. Allows you to restore the previous configuration
-
-### Advantages
-
-- Simple setup
-- Low configuration overhead
-- Claude Code loads quickly with minimal tools
-- Easy to understand and debug
-
-### Disadvantages
-
-- Need to switch and update PAT each time
-- Requires Claude Code restart after switching
-- Can't work with multiple orgs simultaneously
-
----
-
-## Approach 2: Multiple Servers (Advanced)
-
-Load all organizations simultaneously so you can switch without restarting Claude Code.
-
-### Setup
-
-1. Copy the multi-organization template:
-   ```bash
-   cp .mcp.json.multi-org.example .mcp.json
-   ```
-
-2. Update each organization's configuration:
-   ```json
-   {
-     "mcpServers": {
-       "azure-devops-msvante": {
-         "command": "node",
-         "args": [".mcp-servers/azure-devops-mcp/dist/index.js", "msvante", "--authentication", "env"],
-         "env": {
-           "AZURE_DEVOPS_PAT": "YOUR_MSVANTE_PAT"
-         }
-       },
-       "azure-devops-other": {
-         "command": "node",
-         "args": [".mcp-servers/azure-devops-mcp/dist/index.js", "other-org", "--authentication", "env"],
-         "env": {
-           "AZURE_DEVOPS_PAT": "YOUR_OTHER_ORG_PAT"
-         }
-       }
-     }
-   }
-   ```
-
-3. Update PAT values for each organization
-
-### Using Multiple Organizations
-
-When prompting Claude Code, specify which organization you want to work with:
-
-- "List projects in the msvante organization"
-- "Show work items from the other-org Azure DevOps"
-- "Create a PR in the third-org organization"
-
-Claude Code will intelligently route your request to the appropriate MCP server.
-
-### Advantages
-
-- No restart needed to switch organizations
-- Can reference multiple orgs in single prompt
-- More efficient if frequently switching
-- All organizations available simultaneously
-
-### Disadvantages
-
-- More complex configuration
-- Higher memory usage (multiple servers running)
-- Potentially slower startup (multiple servers initializing)
-- Claude Code has more tools loaded at once
-
----
-
-## Approach 3: Environment-Based (Recommended)
-
-Use environment variables to switch organizations without modifying `.mcp.json`.
-
-### Setup
-
-1. Create an environment configuration file `.env.devops`:
-   ```bash
+   cat > .env.msvante << EOF
    AZURE_DEVOPS_ORG=msvante
-   AZURE_DEVOPS_PAT=your_pat_here
+   AZURE_DEVOPS_PAT=your_msvante_pat_here
+   EOF
+
+   cat > .env.other-org << EOF
+   AZURE_DEVOPS_ORG=other-org
+   AZURE_DEVOPS_PAT=your_other_org_pat_here
+   EOF
    ```
 
-2. Create `.mcp.json` that references the environment:
+2. Ensure `.mcp.json` uses environment variable references:
    ```json
    {
      "mcpServers": {
@@ -156,138 +40,186 @@ Use environment variables to switch organizations without modifying `.mcp.json`.
    }
    ```
 
-3. Before starting Claude Code, source your environment:
-   ```bash
-   source .env.devops
-   code .  # or open Claude Code
-   ```
-
 ### Switching Organizations
 
-Switch by changing the environment variables:
+To switch between organizations, source the appropriate environment file before starting Claude Code:
 
 ```bash
-# Switch to another organization
-export AZURE_DEVOPS_ORG=another-org
-export AZURE_DEVOPS_PAT=another_org_pat
-# Restart Claude Code
-```
+# Switch to msvante organization
+source .env.msvante
+code .
 
-Or create separate environment files:
-
-```bash
-# .env.msvante
-AZURE_DEVOPS_ORG=msvante
-AZURE_DEVOPS_PAT=msvante_pat
-
-# .env.other
-AZURE_DEVOPS_ORG=other-org
-AZURE_DEVOPS_PAT=other_org_pat
-```
-
-Then switch by sourcing the appropriate file:
-
-```bash
+# Or in a single command
 source .env.msvante && code .
 ```
 
-### Advantages
+---
 
-- Most flexible approach
-- No `.mcp.json` modifications needed
-- Clean separation of configuration and code
-- Easy to use different PATs for different contexts
-- Works well with CI/CD pipelines
+## Detailed Setup Guide
 
-### Disadvantages
+### Step 1: Prepare Environment Files
 
-- Requires environment variable setup
-- Environment must be set before starting Claude Code
-- Need to remember to source the correct `.env` file
-- `.env.*` files should not be committed (already in `.gitignore`)
+Create an `.env` file for each organization you work with. These files define your organization name and Personal Access Token.
+
+**File naming convention:** `.env.<org-name>`
+
+**Example - .env.msvante:**
+```bash
+AZURE_DEVOPS_ORG=msvante
+AZURE_DEVOPS_PAT=your_pat_for_msvante_here
+```
+
+**Example - .env.another-org:**
+```bash
+AZURE_DEVOPS_ORG=another-org
+AZURE_DEVOPS_PAT=your_pat_for_another_org_here
+```
+
+### Step 2: Verify .mcp.json Configuration
+
+Your `.mcp.json` should reference environment variables (not hardcoded values):
+
+```json
+{
+  "mcpServers": {
+    "azure-devops": {
+      "command": "node",
+      "args": [".mcp-servers/azure-devops-mcp/dist/index.js", "${AZURE_DEVOPS_ORG}", "--authentication", "env"],
+      "env": {
+        "AZURE_DEVOPS_PAT": "${AZURE_DEVOPS_PAT}"
+      }
+    }
+  }
+}
+```
+
+**Note:** If you created `.mcp.json` from `.mcp.json.example`, you may need to replace hardcoded values with `${AZURE_DEVOPS_ORG}` and `${AZURE_DEVOPS_PAT}`.
+
+### Step 3: Update .gitignore
+
+The `.gitignore` already excludes `.env*` files, so your PAT files won't be committed. Verify:
+
+```bash
+grep "^*.env" .gitignore
+```
+
+Should show: `*.env`
+
+### Step 4: Use the Helper Script
+
+Use the provided script to manage organization switching:
+
+```bash
+# Show available environments
+./scripts/mcp-switch-org.sh list
+
+# Switch to an organization and open Claude Code
+./scripts/mcp-switch-org.sh msvante
+
+# Switch and start development
+./scripts/mcp-switch-org.sh another-org
+```
 
 ---
 
-## Switching Organizations: Quick Reference
+## Helper Script
 
-### Single Organization with Helper Script
+The `scripts/mcp-switch-org.sh` script automates the switching process.
+
+### Usage
 
 ```bash
-# Current organization
-./scripts/mcp-switch-org.sh
+./scripts/mcp-switch-org.sh [organization]
+```
 
-# Switch to new organization
-./scripts/mcp-switch-org.sh <org-name>
+### Commands
 
-# Update PAT in .mcp.json
-nano .mcp.json
+| Command | Description |
+|---------|-------------|
+| (no args) | Show available organizations |
+| `org-name` | Source environment and open Claude Code |
+| `list` | List available environments |
 
+### Examples
+
+```bash
+# List available organizations
+./scripts/mcp-switch-org.sh list
+
+# Switch to msvante
+./scripts/mcp-switch-org.sh msvante
+
+# Switch to another-org
+./scripts/mcp-switch-org.sh another-org
+```
+
+---
+
+## Workflow Examples
+
+### Example 1: Working with a Single Primary Organization
+
+If you primarily work with one organization but occasionally need another:
+
+```bash
+# Start with primary organization
+source .env.msvante && code .
+
+# Later, if you need to switch:
+source .env.other-org
 # Restart Claude Code
 ```
 
-### Multiple Servers
+### Example 2: Quick Organization Switching
+
+Use the helper script for quick switching:
 
 ```bash
-# Just mention the organization in your prompt
-"List projects in <org-name> organization"
+./scripts/mcp-switch-org.sh msvante      # Switch and open Claude Code
+# ... work with msvante ...
 
-# Or be specific
-"Show work items for msvante Azure DevOps"
+./scripts/mcp-switch-org.sh other-org    # Switch to different organization
+# ... work with other-org ...
 ```
 
-### Environment-Based
+### Example 3: Multiple Projects with Different Organizations
+
+If you have different projects using different organizations:
 
 ```bash
-# Source environment file
-source .env.<org-name>
+cd project-a
+source .env.org-a && code .
 
-# Start Claude Code
-code .
-
-# Or restart Claude Code with the environment loaded
+cd project-b
+source .env.org-b && code .
 ```
 
 ---
 
 ## Adding a New Organization
 
-### Method 1: Using the Helper Script
+### Step 1: Create Environment File
 
-The helper script automatically backs up your configuration and creates a new one for any organization listed in `.mcp.json.multi-org.example`.
-
-### Method 2: Manual Multi-Org Setup
-
-1. Edit `.mcp.json` and add a new server:
-   ```json
-   {
-     "mcpServers": {
-       "azure-devops-new-org": {
-         "command": "node",
-         "args": [".mcp-servers/azure-devops-mcp/dist/index.js", "new-org", "--authentication", "env"],
-         "env": {
-           "AZURE_DEVOPS_PAT": "NEW_ORG_PAT"
-         }
-       }
-     }
-   }
-   ```
-
-2. Update the PAT for the new organization
-
-3. Restart Claude Code
-
-### Method 3: Environment-Based
-
-Create a new environment file:
+Create a new `.env` file for the organization:
 
 ```bash
 cat > .env.new-org << EOF
 AZURE_DEVOPS_ORG=new-org
-AZURE_DEVOPS_PAT=new_org_pat
+AZURE_DEVOPS_PAT=your_pat_for_new_org
 EOF
 ```
 
-Then use it:
+### Step 2: Set Proper Permissions
+
+Ensure the file has restricted permissions:
+
+```bash
+chmod 600 .env.new-org
+```
+
+### Step 3: Use It
+
+Source the environment and start Claude Code:
 
 ```bash
 source .env.new-org && code .
@@ -295,132 +227,181 @@ source .env.new-org && code .
 
 ---
 
+## Security Best Practices
+
+### 1. Protect Environment Files
+
+Environment files contain Personal Access Tokens. Protect them:
+
+```bash
+# Restrict file permissions
+chmod 600 .env.*
+
+# Verify they're excluded from git
+git status | grep .env   # Should show nothing
+```
+
+### 2. Use Strong PATs
+
+When creating Personal Access Tokens:
+- Use appropriate scopes (Code, Work Items, Build, Release)
+- Set reasonable expiration dates (90 days to 1 year)
+- Regularly rotate tokens
+- Revoke old tokens
+
+### 3. Environment Variable Isolation
+
+Keep environment variables isolated:
+- Don't export them permanently in shell profile
+- Only source them when needed
+- Use separate files per organization
+- Clean up after switching if sensitive
+
+### 4. .gitignore Configuration
+
+The `.gitignore` already includes:
+```
+*.env
+.mcp.json
+.mcp.local.json
+```
+
+This prevents accidental commits of sensitive files.
+
+### 5. Handle PAT Expiration
+
+When a PAT expires:
+
+1. Create a new PAT in Azure DevOps
+2. Update the corresponding `.env.*` file
+3. Test the connection before removing old PAT
+
+---
+
 ## Troubleshooting
 
 ### Organization Not Found
 
-**Problem**: "Cannot find organization" error
+**Problem**: "Cannot find organization" error when running commands
 
 **Solutions**:
-1. Verify the organization name is correct
-2. Check that the organization exists at `https://dev.azure.com/<org-name>`
-3. Ensure your PAT is for the correct organization
-4. Verify the PAT has appropriate scopes
+1. Verify the organization name is correct:
+   ```bash
+   echo $AZURE_DEVOPS_ORG
+   ```
+2. Check the environment file:
+   ```bash
+   cat .env.org-name
+   ```
+3. Verify the organization exists at `https://dev.azure.com/<org-name>`
 
-### PAT Expired
+### Authentication Failed
 
-**Problem**: Authentication fails after switching organizations
-
-**Solution**:
-1. Create a new PAT in Azure DevOps
-2. Update the PAT value in your configuration
-3. Test the connection: "List my Azure DevOps projects"
-
-### Server Not Responding
-
-**Problem**: MCP server doesn't respond after switching
+**Problem**: "Authentication failed" or "Invalid credentials"
 
 **Solutions**:
-1. Restart Claude Code
-2. Verify Node.js is still running: `pgrep node`
-3. Check that the MCP server is built: `ls .mcp-servers/azure-devops-mcp/dist/`
-4. Rebuild if needed: `cd .mcp-servers/azure-devops-mcp && npm install && npm run build`
+1. Check the PAT is correct:
+   ```bash
+   echo $AZURE_DEVOPS_PAT
+   ```
+2. Verify PAT hasn't expired - create a new one if needed
+3. Ensure PAT has appropriate scopes (Code, Work Items, Build, Release)
+4. Verify you sourced the correct environment file:
+   ```bash
+   source .env.correct-org
+   ```
 
-### Configuration Conflicts
+### Environment Not Set
 
-**Problem**: Multiple servers interfering with each other
+**Problem**: Claude Code doesn't recognize the organization
 
-**Solution**:
-Use unique server names in `.mcp.json`:
-```json
-{
-  "mcpServers": {
-    "ado-msvante": { ... },
-    "ado-other": { ... }
-  }
-}
-```
+**Solutions**:
+1. Ensure you sourced the environment before starting Claude Code:
+   ```bash
+   source .env.org-name && code .
+   ```
+2. Verify the variables are set:
+   ```bash
+   echo $AZURE_DEVOPS_ORG
+   echo $AZURE_DEVOPS_PAT
+   ```
+3. Restart Claude Code after sourcing environment
+4. Check that `.mcp.json` references environment variables with `${VARIABLE_NAME}` syntax
+
+### Wrong Organization Active
+
+**Problem**: Working with the wrong organization
+
+**Solutions**:
+1. Verify which organization is currently set:
+   ```bash
+   echo $AZURE_DEVOPS_ORG
+   ```
+2. Source the correct environment file:
+   ```bash
+   source .env.correct-org
+   ```
+3. Restart Claude Code
+4. Test with a simple query: "List my Azure DevOps projects"
+
+---
+
+## File References
+
+| File | Purpose |
+|------|---------|
+| `.env.org-name` | Environment variables for each organization |
+| `.mcp.json` | MCP configuration (uses environment variables) |
+| `scripts/mcp-switch-org.sh` | Helper script for switching organizations |
+| `.gitignore` | Excludes `.env*` and `.mcp.json` files |
 
 ---
 
 ## Best Practices
 
-1. **Security**: Never commit `.mcp.json` with real PATs (use `.gitignore`)
-2. **Backups**: The helper script automatically backs up your config
-3. **Testing**: Test new organization configs with a simple prompt first
-4. **Documentation**: Document which org names you use and what they're for
-5. **PAT Rotation**: Regularly rotate your PATs for security
-6. **Clear Naming**: Use clear server names that indicate the organization
+1. **Naming Convention**: Use clear environment file names matching organization names
+   - `.env.msvante` for msvante organization
+   - `.env.other-org` for other-org organization
+
+2. **File Permissions**: Restrict access to environment files
+   ```bash
+   chmod 600 .env.*
+   ```
+
+3. **PAT Rotation**: Periodically create new PATs and revoke old ones
+
+4. **One Source at a Time**: Source only one environment file at a time to avoid conflicts
+
+5. **Document Organizations**: Keep a note of all organizations you work with
+
+6. **Test After Switching**: Always test the connection after switching:
+   ```bash
+   # In Claude Code, ask:
+   # "List my Azure DevOps projects"
+   ```
 
 ---
 
-## Recommended Workflow
+## Advanced: Multiple Organizations Simultaneously
 
-Based on typical usage patterns, here's the recommended approach:
+If you absolutely need to access multiple organizations simultaneously from one Claude Code instance, you can configure multiple MCP servers in `.mcp.json`. However, this is not recommended for simplicity reasons.
 
-**If you primarily work with one organization:**
-- Use **Approach 1: Single Organization** with the helper script
-- Minimal overhead, easy to manage
-
-**If you work with 2-3 organizations regularly:**
-- Use **Approach 3: Environment-Based** with separate `.env` files
-- Good balance of flexibility and simplicity
-
-**If you work with many organizations or need simultaneous access:**
-- Use **Approach 2: Multiple Servers**
-- More complex but most powerful
-
-**If you work with different organizations in different projects:**
-- Use **Approach 3: Environment-Based** per project
-- Keep project-specific `.env` files in `.gitignore`
+Instead, consider:
+- Opening separate Claude Code windows for different organizations
+- Using the environment-based approach and switching as needed
+- Creating project-specific configurations
 
 ---
 
 ## Additional Resources
 
 - [MCP Setup Guide](./mcp-setup-guide.md) - General MCP configuration
-- [Azure DevOps MCP Setup](./azure-devops-mcp-setup.md) - Azure DevOps specifics
-- [Azure DevOps REST API](https://docs.microsoft.com/en-us/rest/api/azure/devops) - API reference
+- [Azure DevOps MCP Setup](./azure-devops-mcp-setup.md) - Azure DevOps specific setup
 - [Personal Access Tokens](https://docs.microsoft.com/en-us/azure/devops/organizations/accounts/use-personal-access-tokens-to-authenticate) - PAT management
-
----
-
-## Helper Script Reference
-
-### Usage
-
-```bash
-./scripts/mcp-switch-org.sh [command]
-```
-
-### Commands
-
-| Command | Description |
-|---------|-------------|
-| (no args) | Show current organization |
-| `org-name` | Switch to organization |
-| `list` or `current` | Show current organization |
-| `show-all` or `list-all` | List all available organizations |
-| `restore` | Restore previous organization from backup |
-
-### Examples
-
-```bash
-# Show current
-./scripts/mcp-switch-org.sh
-
-# Switch to msvante
-./scripts/mcp-switch-org.sh msvante
-
-# List all available
-./scripts/mcp-switch-org.sh show-all
-
-# Restore previous
-./scripts/mcp-switch-org.sh restore
-```
 
 ---
 
 ## Version History
 
-- **v1.0** (2025-11-12): Initial multi-organization guide with three approaches and helper script
+- **v2.0** (2025-11-12): Simplified to environment-based approach only
+- **v1.0** (2025-11-12): Initial multi-organization guide with three approaches
