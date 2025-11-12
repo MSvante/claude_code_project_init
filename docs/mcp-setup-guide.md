@@ -151,16 +151,17 @@ The `.mcp.json` file contains your Personal Access Token, which is sensitive. Pr
 
 For detailed information on working with multiple Azure DevOps organizations, see the [Multi-Organization Guide](./mcp-multi-organization.md).
 
-The recommended approach is using **environment variables**. Create `.env` files for each organization:
+The recommended approach is using **environment variables**. Create `.env` files in the `environments/` directory for each organization:
 
 ```bash
-# Create .env file for each organization
-cat > .env.msvante << EOF
-AZURE_DEVOPS_ORG=msvante
-AZURE_DEVOPS_PAT=your-pat-here
-EOF
+# Copy the example template
+cp environments/example.env.org_name environments/.env.msvante
 
-cat > .env.other-org << EOF
+# Edit with your credentials
+nano environments/.env.msvante
+
+# Create additional organizations
+cat > environments/.env.other-org << EOF
 AZURE_DEVOPS_ORG=other-org
 AZURE_DEVOPS_PAT=your-pat-here
 EOF
@@ -176,7 +177,7 @@ Then switch between organizations using the helper script:
 ./scripts/mcp-switch-org.sh list
 
 # Or manually source the environment
-source .env.other-org && code .
+source environments/.env.other-org && code .
 ```
 
 See [Multi-Organization Guide](./mcp-multi-organization.md) for detailed instructions and examples.
