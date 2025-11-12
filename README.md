@@ -83,6 +83,10 @@ This project includes Azure DevOps MCP server integration for seamless work item
 **Documentation:**
 - [MCP Setup Guide](./docs/mcp-setup-guide.md) - Complete setup instructions
 - [Azure DevOps MCP Setup](./docs/azure-devops-mcp-setup.md) - Azure DevOps specific configuration
+- [Multi-Organization Management](./docs/mcp-multi-organization.md) - Work with multiple organizations
+
+**Helper Scripts:**
+- `./scripts/mcp-switch-org.sh` - Quickly switch between organizations
 
 ## Commit Message Format
 

@@ -147,30 +147,47 @@ The `.mcp.json` file contains your Personal Access Token, which is sensitive. Pr
    - Find the token in the list
    - Click **Revoke** or **Delete**
 
-### Step 5: Multiple Servers (Optional)
+### Step 5: Multiple Organizations
 
-If you need to configure multiple MCP servers (e.g., different organizations), add them to the same `.mcp.json`:
+For detailed information on working with multiple Azure DevOps organizations, see the [Multi-Organization Guide](./mcp-multi-organization.md).
 
-```json
-{
-  "mcpServers": {
-    "azure-devops-org1": {
-      "command": "node",
-      "args": [".mcp-servers/azure-devops-mcp/dist/index.js", "org1", "--authentication", "env"],
-      "env": {
-        "AZURE_DEVOPS_PAT": "ORG1_PAT_TOKEN"
-      }
-    },
-    "azure-devops-org2": {
-      "command": "node",
-      "args": [".mcp-servers/azure-devops-mcp/dist/index.js", "org2", "--authentication", "env"],
-      "env": {
-        "AZURE_DEVOPS_PAT": "ORG2_PAT_TOKEN"
-      }
-    }
-  }
-}
-```
+**Quick Reference:**
+
+If you need to configure multiple organizations, you have three approaches:
+
+1. **Single Organization with Switching** - Use the helper script to switch between orgs
+   ```bash
+   ./scripts/mcp-switch-org.sh another-org
+   ```
+
+2. **Multiple Servers** - Load all organizations simultaneously:
+   ```json
+   {
+     "mcpServers": {
+       "azure-devops-org1": {
+         "command": "node",
+         "args": [".mcp-servers/azure-devops-mcp/dist/index.js", "org1", "--authentication", "env"],
+         "env": {
+           "AZURE_DEVOPS_PAT": "ORG1_PAT_TOKEN"
+         }
+       },
+       "azure-devops-org2": {
+         "command": "node",
+         "args": [".mcp-servers/azure-devops-mcp/dist/index.js", "org2", "--authentication", "env"],
+         "env": {
+           "AZURE_DEVOPS_PAT": "ORG2_PAT_TOKEN"
+         }
+       }
+     }
+   }
+   ```
+
+3. **Environment-Based** - Switch using environment variables (recommended)
+   ```bash
+   source .env.org1 && code .
+   ```
+
+See [Multi-Organization Guide](./mcp-multi-organization.md) for detailed instructions and examples.
 
 ---
 
