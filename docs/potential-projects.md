@@ -9,7 +9,8 @@
 | 3 | Personal Portfolio Website | ❌ |
 | 4 | AULA Data Dashboard - Danish School Platform Integration | ❌ |
 | 5 | Intelligent Email Assistant - Smart Reply Automation | ❌ |
-| 6 | Azure DevOps MCP Server Integration | ✅ |
+| 6 | Password Manager - Secure Credential Storage & Management | ❌ |
+| 7 | Azure DevOps MCP Server Integration | ✅ |
 
 ## Project Inspiration
 
@@ -296,6 +297,82 @@ Create an intelligent email automation system that acts as your personal email a
 - Use Microsoft Graph API to read and create draft emails
 - Add safety checks to prevent accidental sends and ensure quality
 - Store email analysis results for continuous improvement
+
+---
+
+### 6. Password Manager - Secure Credential Storage & Management
+
+**Objective**: Build a secure, user-friendly password manager that encrypts and stores credentials with support for browser integration, password generation, and cross-device synchronization.
+
+**Description**:
+Create a personal password manager that securely stores login credentials, API keys, and sensitive information with end-to-end encryption. The application will feature a secure vault with master password protection, automatic password generation, breach detection, browser extension support, and optional cloud synchronization. Users can organize credentials into folders, tag them for easy searching, and access them across devices with full privacy assurance.
+
+**Key Features**:
+- **Secure Vault**: End-to-end encrypted credential storage using AES-256 encryption
+- **Master Password**: Single master password protecting all stored credentials
+- **Password Generation**: Built-in password generator with customizable strength and complexity
+- **Credential Organization**: Folder/collection system for organizing passwords by category
+- **Search & Filter**: Fast search across credentials with tagging support
+- **Breach Detection**: Check if stored passwords have appeared in known data breaches (via haveibeenpwned API)
+- **Browser Extension**: Auto-fill plugin for Chrome, Firefox, and Edge
+- **Cross-Device Sync**: Optional cloud synchronization with zero-knowledge architecture
+- **Two-Factor Authentication (2FA)**: Support for TOTP/authenticator codes storage
+- **Secure Notes**: Encrypted text storage for sensitive non-credential data
+- **Password Strength Meter**: Real-time feedback on password security
+- **Autofill Capability**: Smart detection and auto-population of login forms
+- **Audit Log**: Track access history and changes to credentials
+- **Emergency Access**: Secure delegation of account access in emergencies
+
+**Technical Stack** (suggestions):
+- Frontend: React or Vue.js for web vault interface
+- Browser Extension: JavaScript with WebExtension API
+- Backend: Python (FastAPI) or Node.js (Express) for optional sync features
+- Encryption: libsodium or TweetNaCl.js for cryptographic operations
+- Database: SQLite for local storage, PostgreSQL for optional cloud backend
+- Authentication: Argon2 for master password hashing
+- API Integrations: haveibeenpwned.com for breach checking
+- Desktop App: Electron for cross-platform desktop client
+- Mobile: React Native or Flutter for mobile applications
+- Security: OAuth2 for optional account linking, end-to-end encryption
+
+**Deployment Approach**:
+- Standalone desktop/web application for local use (no backend required)
+- Optional backend service for device synchronization (zero-knowledge architecture)
+- Browser extension available on Chrome Web Store, Firefox Add-ons, Edge Store
+- Cross-platform support (Windows, macOS, Linux)
+- Offline-first design with optional cloud sync
+- Regular security audits and penetration testing
+- Open-source approach for transparency and community review
+
+**Learning Opportunities**:
+- Cryptography and secure encryption practices
+- Secure credential storage and key derivation functions
+- Browser extension development and Web APIs
+- End-to-end encryption architecture
+- Password security best practices
+- Zero-knowledge architecture design
+- Data privacy and compliance (GDPR, etc.)
+- Security testing and vulnerability assessment
+- Desktop application development with Electron
+- Database security and secure queries
+
+**Phases**:
+1. MVP: Web vault with local storage, master password, AES-256 encryption, password generation
+2. Phase 2: Browser extension with auto-fill capability, search and filtering
+3. Phase 3: Breach detection integration, 2FA support, secure notes
+4. Phase 4: Desktop application (Electron), cross-platform support, audit logs
+5. Phase 5: Cloud synchronization (optional), mobile apps, advanced security features
+
+**Implementation Notes**:
+- Prioritize security over convenience - follow OWASP guidelines
+- Use proven cryptographic libraries rather than implementing crypto from scratch
+- Store only encrypted data with no plaintext credentials in any logs
+- Implement secure memory handling to prevent sensitive data exposure
+- Never transmit master password to any server
+- Support passkey/biometric authentication where available
+- Include comprehensive password strength validation
+- Provide clear security documentation and threat model
+- Conduct regular security reviews and vulnerability disclosures
 
 ---
 
