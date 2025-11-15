@@ -11,6 +11,7 @@
 | 5 | Intelligent Email Assistant - Smart Reply Automation | ❌ |
 | 6 | Password Manager - Secure Credential Storage & Management | ❌ |
 | 7 | Azure DevOps MCP Server Integration | ✅ |
+| 8 | Baby Swimming Registration Bot - Aarhus Automated Booking | ❌ |
 
 ## Project Inspiration
 
@@ -373,6 +374,87 @@ Create a personal password manager that securely stores login credentials, API k
 - Include comprehensive password strength validation
 - Provide clear security documentation and threat model
 - Conduct regular security reviews and vulnerability disclosures
+
+---
+
+### 8. Baby Swimming Registration Bot - Aarhus Automated Booking
+
+**Objective**: Build an automated web scraper and registration bot that monitors the Aarhus municipal baby swimming classes website and automatically registers for available spots when they open.
+
+**Description**:
+Create an intelligent automation system that continuously monitors the Aarhus baby swimming registration website (https://by-bevaegelse.aarhus.dk/aktiviteter/babysvoemning) for available spots, sends notifications when new sessions are posted, and can automatically complete the registration process when availability is detected. Baby swimming classes in Aarhus are highly sought after and fill up quickly, making manual registration challenging for busy parents.
+
+**Key Features**:
+- **Website Monitoring**: Continuous monitoring of the baby swimming activities page for availability changes
+- **Availability Detection**: Smart detection of when new sessions or open spots appear
+- **Automated Registration**: Complete the registration form automatically with pre-configured information
+- **Real-time Notifications**: Instant alerts via email, SMS, or push notifications when spots become available
+- **Session Preferences**: Configure preferred times, days, and locations
+- **Multi-user Support**: Handle registrations for multiple children or family members
+- **Waitlist Management**: Automatically join waitlists and monitor for openings
+- **Captcha Handling**: Integration with captcha solving services if needed
+- **Scheduling**: Run checks at configurable intervals (e.g., every 5 minutes during high-demand periods)
+- **Success Confirmation**: Verify successful registration and save confirmation details
+- **Dashboard**: Web interface to configure preferences, view history, and manage notifications
+
+**Technical Stack** (suggestions):
+- Backend: Python with Selenium or Playwright for browser automation
+- Alternative: Puppeteer (Node.js) for headless browser control
+- Web Scraping: BeautifulSoup4 or Scrapy for HTML parsing
+- Task Scheduling: APScheduler or Celery with Redis for periodic checks
+- Database: SQLite or PostgreSQL for storing sessions, preferences, and history
+- Notifications: Twilio (SMS), SendGrid (email), or Pushover (push notifications)
+- Frontend: React or Vue.js for configuration dashboard
+- Hosting: Docker container on cloud VM (DigitalOcean, AWS EC2) or local Raspberry Pi
+- Monitoring: Logging and error tracking (Sentry, Loguru)
+- Captcha: 2Captcha or Anti-Captcha service integration if required
+
+**Deployment Approach**:
+- Dockerized application for consistent environment
+- Cloud-hosted VM or local server (Raspberry Pi) for 24/7 monitoring
+- Scheduled tasks running at configured intervals
+- Headless browser with screenshot capability for debugging
+- Secure credential storage for login information
+- Rate limiting to avoid detection and respect server resources
+- Fallback mechanisms if website structure changes
+
+**Learning Opportunities**:
+- Web scraping techniques and best practices
+- Browser automation with Selenium/Playwright
+- DOM parsing and dynamic content handling
+- Handling JavaScript-heavy websites
+- Rate limiting and ethical scraping practices
+- Form automation and submission
+- Notification systems and real-time alerts
+- Task scheduling and cron job management
+- Error handling and retry logic
+- Website change detection algorithms
+
+**Phases**:
+1. MVP: Basic scraping of availability + manual notification when spots detected
+2. Phase 2: Automated form filling and registration submission
+3. Phase 3: Real-time notifications via email/SMS + preference filtering
+4. Phase 4: Web dashboard for configuration and monitoring
+5. Phase 5: Multi-user support + waitlist management + advanced session filtering
+
+**Implementation Notes**:
+- Respect the website's robots.txt and terms of service
+- Implement reasonable request intervals to avoid overloading the server
+- Use user-agent rotation and request headers to appear as normal browser traffic
+- Handle potential anti-bot measures (captchas, rate limiting)
+- Store HTML snapshots for debugging when structure changes
+- Implement comprehensive error handling for network issues
+- Add logging for all registration attempts and outcomes
+- Consider legal and ethical implications of automated registration
+- Test thoroughly in a non-production environment first
+- Provide manual override capability if automation fails
+
+**Ethical Considerations**:
+- Ensure the bot doesn't unfairly disadvantage other parents
+- Consider implementing a delay before registration to give manual users a chance
+- Be transparent about using automation if required by terms of service
+- Don't create multiple accounts to game the system
+- Respect the municipality's registration policies
 
 ---
 
